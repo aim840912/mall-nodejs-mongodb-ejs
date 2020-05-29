@@ -1,0 +1,20 @@
+<%- include('../includes/header.ejs')%>
+
+<form class="login-form" action="/reset" method="post">
+    <%- include('../includes/error-message.ejs') %>
+
+
+    <div class="form-group">
+        <label for="email">電子郵件地址</label>
+        <input type="text" class="form-control" id="email" name="email" aria-describedby="emailHelp">
+        <small id="emailHelp" class="form-text text-muted">請輸入電子郵件地址</small>
+    </div>
+
+
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <button type="submit" class="btn btn-primary">重置密碼</button>
+</form>
+
+
+
+<%- include('../includes/footer.ejs')%>

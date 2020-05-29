@@ -1,0 +1,42 @@
+<%- include('../includes/header.ejs')%>
+
+<form class="product-form" action="/admin/<% if(editing){ %>edit-product<% } else {%>add-product<% } %>" method="post">
+    <div class="form-group">
+        <label for="title">產品標題</label>
+        <input type="text" class="form-control" id="title" name="title" aria-describedby="titleHelp" value="<% if(editing){%><%= product.title %><%}%>">
+        <small id="titleHelp" class="form-text text-muted">請輸入標題內容</small>
+    </div>
+
+    <div class="form-group">
+        <label for="imageUrl">產品圖片</label>
+        <input type="text" class="form-control" id="imageUrl" name="imageUrl" aria-describedby="imageUrlHelp" value="<% if(editing){%><%= product.imageUrl %><%}%>">
+        <small id="imageUrlHelp" class="form-text text-muted">請輸入產品圖片地址</small>
+    </div>
+
+    <div class="form-group">
+        <label for="price">產品價格</label>
+        <input type="number" class="form-control" id="price" name="price" aria-describedby="priceHelp" value="<% if(editing){%><%= product.price %><%}%>">
+        <small id="priceHelp" class="form-text text-muted">請輸入產品價格</small>
+    </div>
+
+    <div class="form-group">
+        <label for="description">產品介紹</label>
+        <textarea class="form-control" id="description" name="description" rows="4"><% if(editing){%><%= product.description %><%}%></textarea>
+        <small id="descriptionHelp" class="form-text text-muted">請輸入產品介紹</small>
+    </div>
+
+
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <% if(editing){ %>
+        <input type="hidden" name="productId" id="productId" value="<%= product._id %>" />
+        <%}%>
+    <button type="submit" class="btn btn-primary">
+        <% if(editing){%>
+        修改產品
+        <%  }else{%>
+        添加產品
+        <%  } %>
+
+        </button>
+</form>
+<%- include('../includes/footer.ejs')%>
