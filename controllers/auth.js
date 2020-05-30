@@ -75,6 +75,8 @@ exports.getSignup = (req, res, next) => {
 			{ name: '用戶註冊', hasBreadcrumbUrl: false },
 		],
 		errorMessage: req.flash('error'),
+		oldInput: { email, password, confirmPassword },
+		validationErrors: []
 	});
 };
 
@@ -95,40 +97,31 @@ exports.postSignup = (req, res, next) => {
 				{ name: '用戶註冊', hasBreadcrumbUrl: false },
 			],
 			errorMessage: errors.array()[0].msg,
+			oldInput: { email, password, confirmPassword },
+			validationErrors: error.array()
 		});
 	}
+	bcrypt.hash(password, 12).then((hashedPassword) => {
+		const user = new User({
+			email,
+			password: hashedPassword,
+			cart: {
+				items: [],
+			},
+		});
 
-	User.findOne({ email })
-		.then((userDoc) => {
-			if (userDoc) {
-				req.flash('error', '該用戶已經存在');
-				return res.redirect('/signup');
-			}
-			if (password !== confirmPassword) {
-				req.flash('error', '兩次密碼輸入不一致');
-				return res.redirect('/signup');
-			}
-			return bcrypt.hash(password, 12).then((hashedPassword) => {
-				const user = new User({
-					email,
-					password: hashedPassword,
-					cart: {
-						items: [],
-					},
-				});
-
-				return user.save().then(() => {
-					res.redirect('/login');
-					transporter.sendMail({
-						from: 'chinavane_2020@163.com',
-						to: email,
-						subject: '註冊成功',
-						html: '<b>歡迎新用戶註冊</b>',
-					});
-				});
+		return user.save().then(() => {
+			res.redirect('/login');
+			transporter.sendMail({
+				from: 'chinavane_2020@163.com',
+				to: email,
+				subject: '註冊成功',
+				html: '<b>歡迎新用戶註冊</b>',
 			});
-		})
-		.catch((err) => console.log(err));
+		});
+	});
+
+
 };
 
 exports.getReset = (req, res, next) => {

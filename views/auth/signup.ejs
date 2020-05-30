@@ -5,19 +5,24 @@
 
     <div class="form-group">
         <label for="email">電子郵件地址</label>
-        <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" required>
+        <input type="email" class="form-control <%= validationErrors.find(e=>e.params==='email')?'is-valid' %>"
+            id="email" name="email" aria-describedby="emailHelp" required value="<%= oldInput.email %>">
         <small id="emailHelp" class="form-text text-muted">請輸入電子郵件地址</small>
     </div>
 
     <div class="form-group">
         <label for="password">用户密碼</label>
-        <input type="password" class="form-control" id="password" name="password" aria-describedby="passwordHelp">
+        <input type="password" class="form-control <%= validationErrors.find(e=>e.params==='password')?'is-valid' %>"
+            id="password" name="password" aria-describedby="passwordHelp" value="<%= oldInput.password %>">
         <small id="passwordHelp" class="form-text text-muted">請輸入用户密碼</small>
     </div>
 
     <div class="form-group">
         <label for="confirmPassword">重复密碼</label>
-        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" aria-describedby="confirmPasswordHelp">
+        <input type="password"
+            class="form-control <%= validationErrors.find(e=>e.params==='confirmPassword')?'is-valid' %>"
+            id="confirmPassword" name="confirmPassword" aria-describedby="confirmPasswordHelp"
+            value="<%= oldInput.confirmPassword %>">
         <small id="confirmPasswordHelp" class="form-text text-muted">請再次輸入密碼</small>
     </div>
 
