@@ -1,6 +1,7 @@
 const Product = require('../models/product');
 const User = require('../models/user');
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose')
 
 exports.getAddProduct = (req, res, next) => {
 	res.render('admin/edit-product', {
@@ -26,25 +27,31 @@ exports.getEditProduct = (req, res, next) => {
 
 	const productId = req.params.productId;
 
-	Product.findById(productId).then((product) => {
-		if (!product) {
-			return res.redirect('/');
-		}
+	Product.findById(productId)
+		.then((product) => {
+			if (!product) {
+				return res.redirect('/');
+			}
 
-		res.render('admin/edit-product', {
-			docTitle: '修改產品',
-			activeProductManage: true,
-			breadcrumb: [
-				{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
-				{ name: '修改產品', hasBreadcrumbUrl: false },
-			],
-			editing: editMode,
-			product,
-			hasError: false,
-			errorMessage: null,
-			validationErrors: [],
-		});
-	});
+			res.render('admin/edit-product', {
+				docTitle: '修改產品',
+				activeProductManage: true,
+				breadcrumb: [
+					{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
+					{ name: '修改產品', hasBreadcrumbUrl: false },
+				],
+				editing: editMode,
+				product,
+				hasError: false,
+				errorMessage: null,
+				validationErrors: [],
+			});
+		})
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };
 
 exports.postAddProduct = (req, res, next) => {
@@ -77,7 +84,12 @@ exports.postAddProduct = (req, res, next) => {
 		.then((result) => {
 			res.redirect('/admin/products');
 		})
-		.catch((err) => console.log(err));
+		.catch((err) => {
+			// const error = new Error(err)
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		});
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -118,7 +130,15 @@ exports.postEditProduct = (req, res, next) => {
 			.then((result) => {
 				res.redirect('/admin/products');
 			})
-			.catch((err) => console.log(err));
+			.catch((err) => {
+				const error = new Error(err)
+				error.httpStatusCode = 500
+				return next(error)
+			});
+	}).catch((err) => {
+		const error = new Error(err)
+		error.httpStatusCode = 500
+		return next(error)
 	});
 };
 
@@ -129,7 +149,11 @@ exports.postDeleteProduct = (req, res, next) => {
 		.then((result) => {
 			res.redirect('/admin/products');
 		})
-		.catch((err) => console.log(err));
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		});
 };
 
 exports.getProducts = (req, res, next) => {
@@ -146,5 +170,10 @@ exports.getProducts = (req, res, next) => {
 					{ name: '產品管理', hasBreadcrumbUrl: false },
 				],
 			});
+		})
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
 		});
 };

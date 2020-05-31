@@ -2,17 +2,24 @@ const Product = require('../models/product');
 const Order = require('../models/order');
 
 exports.getProducts = (req, res, next) => {
-	Product.find().then((products) => {
-		res.render('shop/product-list', {
-			prods: products,
-			docTitle: '產品中心',
-			activeProductList: true,
-			breadcrumb: [
-				{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
-				{ name: '產品中心', hasBreadcrumbUrl: false },
-			],
-		});
-	});
+	Product
+		.find()
+		.then((products) => {
+			res.render('shop/product-list', {
+				prods: products,
+				docTitle: '產品中心',
+				activeProductList: true,
+				breadcrumb: [
+					{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
+					{ name: '產品中心', hasBreadcrumbUrl: false },
+				],
+			});
+		})
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };
 
 exports.getIndex = (req, res, next) => {
@@ -28,7 +35,11 @@ exports.getIndex = (req, res, next) => {
 				],
 			});
 		})
-		.catch((err) => console.log(err));
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };
 
 exports.getCart = (req, res, next) => {
@@ -46,20 +57,31 @@ exports.getCart = (req, res, next) => {
 				],
 				cartProducts: products,
 			});
-		});
+		})
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };
 
 exports.postAddToCart = (req, res, next) => {
 	const productId = req.body.productId;
 
-	Product.findById(productId)
+	Product
+		.findById(productId)
 		.then((product) => {
 			return req.user.addToCart(product);
 		})
 		.then((result) => {
 			res.redirect('/cart');
 		})
-		.catch((err) => console.log(err));
+
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
@@ -70,7 +92,11 @@ exports.postCartDeleteProduct = (req, res, next) => {
 		.then((result) => {
 			res.redirect('/cart');
 		})
-		.catch((err) => console.log(err));
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };
 
 exports.getProductDetail = (req, res, next) => {
@@ -89,7 +115,11 @@ exports.getProductDetail = (req, res, next) => {
 				],
 			});
 		})
-		.catch((err) => console.log(err));
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };
 
 exports.postCreateOrder = (req, res, next) => {
@@ -118,20 +148,29 @@ exports.postCreateOrder = (req, res, next) => {
 			res.redirect('/checkout');
 		})
 		.catch((err) => {
-			console.log(err);
-		});
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };
 
 exports.getCheckout = (req, res, next) => {
-	Order.find({ 'user.userId': req.user._id }).then((orders) => {
-		res.render('shop/checkout', {
-			docTitle: '訂單管理',
-			activeCheckout: true,
-			orders,
-			breadcrumb: [
-				{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
-				{ name: '訂單管理', hasBreadcrumbUrl: false },
-			],
-		});
-	});
+	Order
+		.find({ 'user.userId': req.user._id })
+		.then((orders) => {
+			res.render('shop/checkout', {
+				docTitle: '訂單管理',
+				activeCheckout: true,
+				orders,
+				breadcrumb: [
+					{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
+					{ name: '訂單管理', hasBreadcrumbUrl: false },
+				],
+			});
+		})
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };

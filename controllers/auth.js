@@ -56,8 +56,10 @@ exports.postLogin = (req, res, next) => {
 				});
 		})
 		.catch((err) => {
-			console.log(err);
-		});
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };
 
 exports.postLogout = (req, res, next) => {
@@ -110,15 +112,22 @@ exports.postSignup = (req, res, next) => {
 			},
 		});
 
-		return user.save().then(() => {
-			res.redirect('/login');
-			transporter.sendMail({
-				from: 'chinavane_2020@163.com',
-				to: email,
-				subject: '註冊成功',
-				html: '<b>歡迎新用戶註冊</b>',
-			});
-		});
+		return user
+			.save()
+			.then(() => {
+				res.redirect('/login');
+				transporter.sendMail({
+					from: 'chinavane_2020@163.com',
+					to: email,
+					subject: '註冊成功',
+					html: '<b>歡迎新用戶註冊</b>',
+				});
+			})
+			.catch((err) => {
+				const error = new Error(err)
+				error.httpStatusCode = 500
+				return next(error)
+			})
 	});
 
 
@@ -155,44 +164,59 @@ exports.postReset = (req, res, next) => {
 				user.resetToken = token;
 				user.resetTokenExpiration = Date.now() + 1000 * 60 * 60;
 
-				return user.save().then((result) => {
-					res.redirect('/');
+				return user
+					.save()
+					.then((result) => {
+						res.redirect('/');
 
-					transporter.sendMail({
-						from: 'chinavane_2020@163.com',
-						to: email,
-						subject: '重置密碼',
-						html: `
+						transporter.sendMail({
+							from: 'chinavane_2020@163.com',
+							to: email,
+							subject: '重置密碼',
+							html: `
 							你請求了密碼重置操作，可以點擊連結地址：
 							<a href="http://localhost:3000/reset/${token}">重置链接</a>
 						`,
-					});
-				});
+						});
+					}).catch((err) => {
+						const error = new Error(err)
+						error.httpStatusCode = 500
+						return next(error)
+					})
 			})
-
-			.catch((err) => console.log(err));
+			.catch((err) => {
+				const error = new Error(err)
+				error.httpStatusCode = 500
+				return next(error)
+			})
 	});
 };
 
 exports.getNewPassword = (req, res, next) => {
 	const token = req.params.token;
 
-	User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } }).then((user) => {
-		if (!user) {
-			return res.redirect('/login');
-		}
+	User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
+		.then((user) => {
+			if (!user) {
+				return res.redirect('/login');
+			}
 
-		res.render('auth/new-password', {
-			docTitle: '設置新密碼',
-			breadcrumb: [
-				{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
-				{ name: '設置新密碼', hasBreadcrumbUrl: false },
-			],
-			userId: user._id.toString(),
-			passwordToken: token,
-			errorMessage: req.flash('error'),
-		});
-	});
+			res.render('auth/new-password', {
+				docTitle: '設置新密碼',
+				breadcrumb: [
+					{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
+					{ name: '設置新密碼', hasBreadcrumbUrl: false },
+				],
+				userId: user._id.toString(),
+				passwordToken: token,
+				errorMessage: req.flash('error'),
+			});
+		})
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };
 
 exports.postNewPassword = (req, res, next) => {
@@ -211,9 +235,20 @@ exports.postNewPassword = (req, res, next) => {
 			resetUser.resetToken = undefined;
 			resetUser.resetTokenExpiration = undefined;
 
-			return resetUser.save().then((result) => {
-				res.redirect('/login');
-			});
+			return resetUser
+				.save()
+				.then((result) => {
+					res.redirect('/login');
+				})
+				.catch((err) => {
+					const error = new Error(err)
+					error.httpStatusCode = 500
+					return next(error)
+				})
 		})
-		.catch((err) => console.log(err));
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		})
 };

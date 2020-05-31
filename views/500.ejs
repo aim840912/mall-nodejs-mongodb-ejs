@@ -1,8 +1,14 @@
 <%- include('includes/header.ejs')%>
-
+<% var error %>
 <div class="jumbotron">
-    <h1 class="display-4">頁面沒找到</h1>
-    <p class="lead">很抱歉，你所找到的頁面已經丟失！</p>
+    <h1 class="display-4">程式出錯</h1>
+    <p class="lead">
+        <% if(error){ %>
+        <%= error %>
+        <% }else{ %>
+        服務出現問題，請稍後在試
+        <% } %>
+    </p>
     <hr class="my-4">
     <p>請點擊按鈕返回首頁</p>
     <a class="btn btn-primary btn-lg" href="/" role="button">返回首頁</a>
