@@ -11,7 +11,7 @@ router.post(
     '/login',
     [
         body('email').isEmail().withMessage('请输入正确的電子郵件').normalizeEmail(),
-        body('password', '密码不得少於5个字符，且只能是數字或者字母').isLength({ min: 5 }).isAlphanumeric().trim(),
+        body('password', '密碼不得少於5个字符，且只能是數字或者字母').isLength({ min: 5 }).isAlphanumeric().trim(),
     ],
     authController.postLogin
 );

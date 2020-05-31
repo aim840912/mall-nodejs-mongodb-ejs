@@ -20,6 +20,35 @@
     </div>
     <% } %>
 </div>
+
+<div class="pt-4">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <% if(currentPage !==1){%>
+            <li class="page-item"><a class="page-link" href="?page=1">首頁</a></li>
+            <%}%>
+
+
+            <% if(hasPrevPage){%>
+            <li class="page-item"><a class="page-link" href="?page=<%= prevPage %>">上一頁</a></li>
+            <%}%>
+
+            <% for(let i=1; i<= totalPages;i++){%>
+            <li class="page-item <% if(i==currentPage){ %>active<%}%>"><a class="page-link" href="?page=<%= i %>"><%= i %></a></li>
+            <%}%>
+
+            <% if(hasNextPage){%>
+            <li class="page-item"><a class="page-link" href="?page=<%= nextPage %>">下一頁</a></li>
+            <%}%>
+
+
+            <% if(totalPages !== currentPage){%>
+            <li class="page-item"><a class="page-link" href="?page=<%= totalPages %>">尾頁</a></li>
+            <%}%>
+        </ul>
+    </nav>
+</div>
+
 <% } else {%>
 <div class="alert alert-danger" role="alert">暫無產品</div>
 <% }%>

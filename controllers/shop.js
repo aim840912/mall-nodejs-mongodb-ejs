@@ -3,10 +3,25 @@ const Order = require('../models/order');
 const path = require('path')
 const fs = require('fs')
 const PDFDocument = require('pdfkit')
+const ITEM_PER_PAGE = 6
+let totalItem = 0
+let totalPage = 0
 
 exports.getProducts = (req, res, next) => {
+	const page = +req.query.page || 1
+
 	Product
 		.find()
+		.countDocuments()
+		.then(numProducts => {
+			totalItem = numProducts
+			totalPage = Math.ceil(totalItem / ITEM_PER_PAGE)
+
+			return Product
+				.find()
+				.skip((page - 1) * ITEM_PER_PAGE)
+				.limit(ITEM_PER_PAGE)
+		})
 		.then((products) => {
 			res.render('shop/product-list', {
 				prods: products,
@@ -16,6 +31,14 @@ exports.getProducts = (req, res, next) => {
 					{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
 					{ name: '產品中心', hasBreadcrumbUrl: false },
 				],
+				totalItem,
+				totalPage,
+				hasNextPage: ITEM_PER_PAGE * page < totalItem,
+				hasPrevPage: page > 1,
+				nextPage: page + 1,
+				prevPage: page - 1,
+				firstPage: 1,
+				currentPage: page
 			});
 		})
 		.catch((err) => {
@@ -26,10 +49,16 @@ exports.getProducts = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-	Product.find()
+	const page = +req.query.page || 1
+	const customLabels = {
+		totalDocs: 'totalItems',
+		page: 'currentPage',
+		docs: 'prods'
+	}
+	Product.paginate({}, { page, limit: ITEM_PER_PAGE, customLabels })
 		.then((products) => {
 			res.render('shop/index', {
-				prods: products,
+				...products,
 				docTitle: '商城',
 				activeShop: true,
 				breadcrumb: [
