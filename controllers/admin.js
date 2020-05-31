@@ -1,7 +1,7 @@
 const Product = require('../models/product');
 const User = require('../models/user');
 const { validationResult } = require('express-validator');
-const mongoose = require('mongoose')
+const fileHelper = require('../util/fileHelper')
 
 exports.getAddProduct = (req, res, next) => {
 	res.render('admin/edit-product', {
@@ -132,38 +132,49 @@ exports.postEditProduct = (req, res, next) => {
 		});
 	}
 
-	Product.findById(productId).then((product) => {
-		if (product.userId.toString() !== req.user._id.toString()) {
-			return res.redirect('/');
-		}
+	Product.findById(productId)
+		.then((product) => {
+			if (product.userId.toString() !== req.user._id.toString()) {
+				return res.redirect('/');
+			}
 
-		product.title = title;
-		product.price = price;
-		product.description = description;
-		if(image){
-			product.imageUrl=image.path
-		}
-		product
-			.save()
-			.then((result) => {
-				res.redirect('/admin/products');
-			})
-			.catch((err) => {
-				const error = new Error(err)
-				error.httpStatusCode = 500
-				return next(error)
-			});
-	}).catch((err) => {
-		const error = new Error(err)
-		error.httpStatusCode = 500
-		return next(error)
-	});
+			product.title = title;
+			product.price = price;
+			product.description = description;
+			if (image) {
+				fileHelper.deleteFile(product.imageUrl)
+				product.imageUrl = image.path
+			}
+			product
+				.save()
+				.then((result) => {
+					res.redirect('/admin/products');
+				})
+				.catch((err) => {
+					const error = new Error(err)
+					error.httpStatusCode = 500
+					return next(error)
+				});
+		}).catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		});
 };
 
 exports.postDeleteProduct = (req, res, next) => {
 	const productId = req.body.productId;
 
-	Product.deleteOne({ _id: productId, userId: req.user._id })
+	Product.findById(productId)
+		.then((product) => {
+			if (!product) {
+				next(new Error('產品未找到'))
+			}
+
+			fileHelper.deleteFile(product.imageUrl)
+
+			return Product.deleteOne({ _id: productId, userId: req.user._id })
+		})
 		.then((result) => {
 			res.redirect('/admin/products');
 		})

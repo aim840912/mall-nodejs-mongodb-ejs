@@ -1,5 +1,8 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
+const path = require('path')
+const fs = require('fs')
+const PDFDocument = require('pdfkit')
 
 exports.getProducts = (req, res, next) => {
 	Product
@@ -174,3 +177,47 @@ exports.getCheckout = (req, res, next) => {
 			return next(error)
 		})
 };
+
+exports.getInvoice = (req, res, next) => {
+	const orderId = req.params.orderId
+	const invoiceName = 'invoice' + '-' + orderId + '.pdf'
+	const invoicePath = path.join('data', 'invoices', invoiceName)
+
+	Order.findById(orderId)
+		.then((order) => {
+			if (!order) {
+				return next(new Error('沒有匹配訂單訊息'))
+			}
+			if (order.user.userId.toString() !== req.user._id.toString()) {
+				return next(new Error('未授權'))
+			}
+
+			// fs.readFile(invoicePath, (err, data) => {
+			// 	if (err) {
+			// 		next(err)
+			// 	}
+			// 	res.setHeader('Content-Type', 'application/pdf')
+			// 	res.setHeader('Content-Disposition', `inline; filename=invoice-${orderId}.pdf`)
+			// 	return res.send(data)
+			// })
+
+			// const file=fs.createReadStream(invoicePath)
+			// file.on('data',(chunk)=>{
+
+			// })
+			// file.pipe(res)
+
+			const pdfDoc = new PDFDocument()
+			res.setHeader('Content-Type', 'application/pdf')
+			res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`)
+			pdfDoc.pipe(fs.createWriteStream(invoicePath))
+			pdfDoc.pipe(res)
+			pdfDoc.fontSize(25).text('Nodejs PDF')
+			pdfDoc.end()
+		})
+		.catch((err) => {
+			const error = new Error(err)
+			error.httpStatusCode = 500
+			return next(error)
+		});
+}

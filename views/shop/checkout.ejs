@@ -7,7 +7,7 @@
 
     <% orders.forEach(function(order){%>
     <li class="list-group-item active">
-        <%= order._id %>
+        <%= order._id %><a href="/checkout/<%= order._id %>" class="btn btn-warning">發貨單</a>
 
         <% order.products.forEach(function(p){ %>
     <li class="list-group-item">
