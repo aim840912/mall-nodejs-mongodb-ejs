@@ -7,7 +7,14 @@ const User = require('../models/user')
 const router = express.Router();
 
 router.get('/login', authController.getLogin);
-router.post('/login', authController.postLogin);
+router.post(
+    '/login',
+    [
+        body('email').isEmail().withMessage('请输入正确的電子郵件').normalizeEmail(),
+        body('password', '密码不得少於5个字符，且只能是數字或者字母').isLength({ min: 5 }).isAlphanumeric().trim(),
+    ],
+    authController.postLogin
+);
 router.post('/logout', authController.postLogout);
 
 router.get('/signup', authController.getSignup);

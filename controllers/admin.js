@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const User = require('../models/user');
+const { validationResult } = require('express-validator');
 
 exports.getAddProduct = (req, res, next) => {
 	res.render('admin/edit-product', {
@@ -10,6 +11,9 @@ exports.getAddProduct = (req, res, next) => {
 			{ name: '添加產品', hasBreadcrumbUrl: false },
 		],
 		editing: false,
+		hasError: false,
+		errorMessage: null,
+		validationErrors: [],
 	});
 };
 
@@ -36,6 +40,9 @@ exports.getEditProduct = (req, res, next) => {
 			],
 			editing: editMode,
 			product,
+			hasError: false,
+			errorMessage: null,
+			validationErrors: [],
 		});
 	});
 };
@@ -46,6 +53,23 @@ exports.postAddProduct = (req, res, next) => {
 	const description = req.body.description;
 	const price = req.body.price;
 	const userId = req.user;
+
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		return res.status(422).render('admin/edit-product', {
+			docTitle: '添加產品',
+			breadcrumb: [
+				{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
+				{ name: '添加產品', hasBreadcrumbUrl: false },
+			],
+			editing: false,
+			hasError: true,
+			errorMessage: errors.array()[0].msg,
+			product: { title, imageUrl, price, description },
+			validationErrors: errors.array(),
+		});
+	}
 
 	const product = new Product({ title, imageUrl, price, description, userId });
 	product
@@ -62,6 +86,23 @@ exports.postEditProduct = (req, res, next) => {
 	const imageUrl = req.body.imageUrl;
 	const description = req.body.description;
 	const price = req.body.price;
+
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		return res.status(422).render('admin/edit-product', {
+			docTitle: '修改產品',
+			breadcrumb: [
+				{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
+				{ name: '修改產品', hasBreadcrumbUrl: false },
+			],
+			editing: true,
+			hasError: true,
+			errorMessage: errors.array()[0].msg,
+			product: { title, imageUrl, price, description, _id: productId },
+			validationErrors: errors.array(),
+		});
+	}
 
 	Product.findById(productId).then((product) => {
 		if (product.userId.toString() !== req.user._id.toString()) {

@@ -49,10 +49,18 @@ app.use((req, res, next) => {
 
 	User.findById(req.session.user._id)
 		.then((user) => {
+
+			if (!user) {
+				return req.session.destroy(err => {
+					return res.status(404).send('找不到指定用戶，刷新頁面重新登入')
+				})
+			}
 			req.user = user;
 			next();
 		})
-		.catch((err) => console.log(err));
+		.catch((err) =>
+			next(new Error(err)
+			));
 });
 
 app.use((req, res, next) => {
