@@ -56,11 +56,27 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
 	const title = req.body.title;
-	const imageUrl = req.body.imageUrl;
+	const image = req.file;
 	const description = req.body.description;
 	const price = req.body.price;
 	const userId = req.user;
 
+	if (!image) {
+		return res.status(422).render('admin/edit-product', {
+			docTitle: '添加產品',
+			breadcrumb: [
+				{ name: '首頁', url: '/', hasBreadcrumbUrl: true },
+				{ name: '添加產品', hasBreadcrumbUrl: false },
+			],
+			editing: false,
+			hasError: true,
+			errorMessage: '沒有上傳圖片或者圖片格式不對',
+			product: { title, price, description },
+			validationErrors: [],
+		});
+	}
+
+	const imageUrl = image.path
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
@@ -95,7 +111,7 @@ exports.postAddProduct = (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
 	const productId = req.body.productId;
 	const title = req.body.title;
-	const imageUrl = req.body.imageUrl;
+	const image = req.file;
 	const description = req.body.description;
 	const price = req.body.price;
 
@@ -111,7 +127,7 @@ exports.postEditProduct = (req, res, next) => {
 			editing: true,
 			hasError: true,
 			errorMessage: errors.array()[0].msg,
-			product: { title, imageUrl, price, description, _id: productId },
+			product: { title, price, description, _id: productId },
 			validationErrors: errors.array(),
 		});
 	}
@@ -124,7 +140,9 @@ exports.postEditProduct = (req, res, next) => {
 		product.title = title;
 		product.price = price;
 		product.description = description;
-		product.imageUrl = imageUrl;
+		if(image){
+			product.imageUrl=image.path
+		}
 		product
 			.save()
 			.then((result) => {

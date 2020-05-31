@@ -5,7 +5,7 @@
 <ul class="list-unstyled">
     <% cartProducts.forEach(function(item){ %>
     <li class="media border-bottom p-2">
-        <img src="<%= item.productId.imageUrl %>" class="mr-3" style="width:100px" alt="<%= item.productId.title %>">
+        <img src="/<%= item.productId.imageUrl %>" class="mr-3" style="width:100px" alt="<%= item.productId.title %>">
         <div class="media-body">
             <h5 class="mt-0 mb-1"><%= item.productId.title %></h5>
             <small>价格：￥<%= item.productId.price %></small>

@@ -14,7 +14,6 @@ router.post(
 	'/add-product',
 	[
 		body('title').isString().isLength({ min: 3 }).trim().withMessage('標題內容必須大於3個字'),
-		body('imageUrl').isURL().withMessage('請輸入有效的URL地址'),
 		body('price').isFloat().withMessage('請輸入合理的產品價格'),
 		body('description').isLength({ min: 5, max: 400 }).trim().withMessage('描述信息在5-400字之間'),
 	],
@@ -26,7 +25,6 @@ router.post(
 	'/edit-product',
 	[
 		body('title').isString().isLength({ min: 3 }).trim().withMessage('標題內容必須大於3個字'),
-		body('imageUrl').isURL().withMessage('請輸入有效的URL地址'),
 		body('price').isFloat().withMessage('請輸入合理的產品價格'),
 		body('description').isLength({ min: 5, max: 400 }).trim().withMessage('描述信息在5-400字符之间'),
 	],
