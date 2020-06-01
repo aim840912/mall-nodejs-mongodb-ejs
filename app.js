@@ -9,10 +9,18 @@ const mongoose = require('mongoose');
 const User = require('./models/user');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
-const MONGODB_URI = 'mongodb://localhost/nodejs-shop';
 const csrf = require('csurf');
 const flash = require('express-flash-messages');
 const multer = require('multer')
+const dotenv = require('dotenv')
+const helmet = require('helmet')
+const compression = require('compression')
+const morgan = require('morgan')
+const fs = require('fs')
+
+dotenv.config('./env')
+
+const MONGODB_URI = process.env.MONGODB_URI
 
 const app = express();
 const store = new MongoDBStore({
@@ -40,13 +48,19 @@ const fileFilter = (req, file, cb) => {
 	}
 }
 
+app.use(helmet())
+app.use(compression())
+
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+app.use(morgan('combined', { stream: accessLogStream }))
+
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage, fileFilter }).single('image'))
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/images',express.static(path.join(__dirname, 'images')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use(
 	session({
@@ -90,8 +104,6 @@ app.use((req, res, next) => {
 			));
 });
 
-
-
 app.use(shopRoutes);
 app.use(authRoutes);
 app.use('/admin', adminRoutes);
@@ -106,8 +118,13 @@ app.use((error, req, res, next) => {
 mongoose
 	.connect(MONGODB_URI, { useNewUrlParser: true })
 	.then((result) => {
-		app.listen(3000, () => {
+		const server = app.listen(process.env.PORT || 3000, () => {
 			console.log('App listening on port 3000!');
 		});
+
+		const io = require('socket.io')(server)
+		io.connect('connection', (socket) => {
+			console.log('client connected')
+		})
 	})
 	.catch((err) => console.log(err));
