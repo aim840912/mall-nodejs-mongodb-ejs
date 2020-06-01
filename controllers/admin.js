@@ -162,6 +162,27 @@ exports.postEditProduct = (req, res, next) => {
 		});
 };
 
+exports.deleteProduct = (req, res, next) => {
+	const productId = req.params.productId;
+
+	Product.findById(productId)
+		.then((product) => {
+			if (!product) {
+				next(new Error('產品未找到'))
+			}
+
+			fileHelper.deleteFile(product.imageUrl)
+
+			return Product.deleteOne({ _id: productId, userId: req.user._id })
+		})
+		.then((result) => {
+			res.json({messgae: 'success'})
+		})
+		.catch((err) => {
+			res.json({messgae: 'fail'})
+		});
+}
+
 exports.postDeleteProduct = (req, res, next) => {
 	const productId = req.body.productId;
 

@@ -15,11 +15,8 @@
                 <p>￥<%= product.price %></p>
                 <div class="row">
                     <a href="/admin/edit-product/<%= product._id %>?edit=true" class="btn btn-primary mr-2">修改產品</a>
-                    <form action="/admin/delete-product" method="post">
-                        <input type="hidden" name="productId" value="<%= product._id %>" />
-                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                        <button type="submit" class="btn btn-danger">删除產品</button>
-                    </form>
+                    <button type="button" class="btn btn-danger"
+                        onclick="deleteProduct('<%= product._id %>','<%= csrfToken %>',event)">删除產品</button>
                 </div>
             </div>
         </div>
@@ -32,3 +29,4 @@
 <% }%>
 
 <%- include('../includes/footer.ejs')%>
+<script src="/javascript/admin.js"></script>

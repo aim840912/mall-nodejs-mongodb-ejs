@@ -1,8 +1,7 @@
 # Mall
 
 1. Create your own account
-2. CRUD Your own portfollo
-3. Everyone can see your portfollo
+2. CRUD Your own mall
 
 ## Quick start
 
@@ -17,4 +16,4 @@
 - Mongodb (DataBase)
 - bcrypt (Security)
 - jwt (Secutity)
-- ejs
+- EJS
